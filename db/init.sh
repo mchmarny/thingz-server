@@ -5,6 +5,8 @@
 
 HOST="localhost"
 PSWD="root"
+NAME="thingz"
+
 
 echo "Using"
 echo "   http://${HOST}:8083/"
@@ -12,14 +14,14 @@ echo "   http://${HOST}:8083/"
 # add db
 echo "Creating DB..."
 curl -X POST "http://${HOST}:8086/db?u=root&p=${PSWD}" \
-     -d '{"name": "thingz"}'
+     -d '{"name": "'"${NAME}"'"}'
 
 # add db user
 echo "Creating DB user..."
-curl -X POST "http://${HOST}:8086/db/thingz/users?u=root&p=${PSWD}" \
-  -d '{"name": "thingz", "password": "thingz"}'
+curl -X POST "http://${HOST}:8086/db/${NAME}/users?u=root&p=${PSWD}" \
+  -d '{"name": "'"${NAME}"'", "password": "'"${NAME}"'"}'
 
 echo "Created"
-echo "   Database: thingz"
-echo "   User: thingz"
-echo "   Password: thingz"
+echo "   Database: ${NAME}"
+echo "   User: ${NAME}"
+echo "   Password: ${NAME}"
