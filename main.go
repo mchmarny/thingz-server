@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -25,7 +26,8 @@ func main() {
 
 	go func() {
 		router := server.NewRouter()
-		errCh <- http.ListenAndServe(":8080", router)
+		address := fmt.Sprintf(":%d", server.Config.Port)
+		errCh <- http.ListenAndServe(address, router)
 	}()
 
 	go func() {

@@ -24,5 +24,7 @@ _testmain.go
 *.prof
 
 # InfluxDB
-
 db/store
+
+# binary
+thingz-server
