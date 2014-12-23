@@ -2,9 +2,12 @@ package types
 
 type Dimension struct {
 
-	// Name of this source
-	Name string `json:"name"`
+	// Dimension of this source
+	Dimension string `json:"dimension"`
 
-	// Sources pf metrics
-	Filters []*FilterCommand `json:"filters"`
+	// Metric of this source
+	Metric string `json:"metric"`
+
+	// Filter filter
+	Filter *Range `json:"filter"`
 }

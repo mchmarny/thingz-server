@@ -1,7 +1,6 @@
 package server
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"net/url"
@@ -10,10 +9,6 @@ import (
 
 	flux "github.com/influxdb/influxdb/client"
 	"github.com/mchmarny/thingz-server/types"
-)
-
-const (
-	MAX_RECORDS_PER_QUERY = 1000
 )
 
 var db *DataService
@@ -34,9 +29,8 @@ func init() {
 	}
 
 	db = &DataService{
-		Config:       c,
-		Client:       client,
-		ColumnFilter: strings.Split(Config.Filter, ","),
+		Config: c,
+		Client: client,
 	}
 
 }
@@ -47,88 +41,59 @@ type DataService struct {
 	ColumnFilter []string
 }
 
-func getSourceFilters(src string, min int) (*types.ThingResponse, error) {
+func getSourceFilters(src string) (*types.ThingResponse, error) {
 
-	//log.Printf("Querying filters for %s", src)
-	q := fmt.Sprintf(
-		"select * from /^%s.*/ where time > now() - %dm limit %d",
-		src, min, MAX_RECORDS_PER_QUERY)
-
+	q := fmt.Sprintf("select low, high from /^%dm.%s.*/ limit 1", Config.DownsampleCCMin, src)
 	result, err := db.Client.Query(q)
 	if err != nil {
-		log.Fatalf("Error on query [%s] - %v", q, err.Error())
+		log.Printf("Error on query [%s] - %v", q, err.Error())
 		return nil, err
 	}
 
 	resp := &types.ThingResponse{
-		Timestamp:  time.Now(),
+		Timestamp:  time.Now().Unix(),
+		NextCheck:  time.Now().Add(time.Duration(int32(Config.AgentCheckFreq)) * time.Minute).Unix(),
 		Dimensions: make([]*types.Dimension, 0),
 	}
 
-	for i, r := range result {
+	if len(result) < 1 {
 
-		log.Printf("Result[%d]%s", i, r.Name)
-		d := &types.Dimension{Name: r.Name}
-
-		for j, s := range r.Columns {
-			log.Printf("Column[%d]%s", j, s)
-			if !arrayContains(db.ColumnFilter, s) {
-
-				f, err := getFilterRange(r.Name, s, min)
-				if err != nil {
-					log.Fatalf("Error on filter range query [%s] - %v", q, err.Error())
-					return nil, err
-				}
-
-				d.Filters = append(d.Filters, &types.FilterCommand{
-					Metric: s,
-					Filter: f,
-				})
-			} // if contains
-		} // for columns
-
-		resp.Dimensions = append(resp.Dimensions, d)
-
-	}
-
-	return resp, nil
-
-}
-
-func getFilterRange(src, col string, min int) (*types.Range, error) {
-
-	// log.Printf("Querying filter ranges for %s", src)
-	q := fmt.Sprintf(
-		"select PERCENTILE(\"%s\",%d), PERCENTILE(\"%s\",%d) from \"%s\" where time > now() - %dm",
-		col, Config.MetricFilterBelow, col, Config.MetricFilterAbove, src, min)
-
-	result, err := db.Client.Query(q)
-	if err != nil {
-		log.Fatalf("Error on query [%s] - %v", q, err.Error())
-		return nil, err
-	}
-
-	if len(result) != 1 {
-		log.Fatalf("Expected one result, go %d", len(result))
-		return nil, errors.New("Invalid result")
-	}
-
-	resp := &types.Range{
-		Below: result[0].Points[0][1],
-		Above: result[0].Points[0][2],
-	}
-
-	return resp, nil
-
-}
-
-func arrayContains(list []string, a string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
+		ccErr := makeContinuousQuery(src)
+		if ccErr != nil {
+			log.Printf("Error during creation of continuous query %s", ccErr.Error())
+			return nil, err
 		}
+		return resp, nil
 	}
-	return false
+
+	for i, r := range result {
+		log.Printf("Result[%d]%s", i, r.Name)
+		parts := strings.Split(r.Name, ".")
+		d := &types.Dimension{
+			Dimension: parts[2],
+			Metric:    parts[3],
+			Filter: &types.Range{
+				Above: r.Points[0][2],
+				Below: r.Points[0][3],
+			},
+		}
+		resp.Dimensions = append(resp.Dimensions, d)
+	}
+
+	// TODO: add logic when paging
+	resp.Count = len(resp.Dimensions)
+
+	return resp, nil
+
+}
+
+func makeContinuousQuery(src string) error {
+	log.Printf("Creating continuous query for %s", src)
+	q := fmt.Sprintf(
+		"select min(value) as min, PERCENTILE(value, %d) as low, mean(value) as med, PERCENTILE(value, %d) as high, max(value) as max from /^%s.*/ group by time(%dm) into %dm.:series_name",
+		Config.MetricFilterBelow, Config.MetricFilterAbove, src, Config.DownsampleCCMin, Config.DownsampleCCMin)
+	_, err := db.Client.Query(q)
+	return err
 }
 
 // parseDBConfig parses connStr string into an InfluxDB config
@@ -136,7 +101,7 @@ func arrayContains(list []string, a string) bool {
 //    udp://user:password@127.0.0.1:4444/dbname
 func parseDBConfig() (*flux.ClientConfig, error) {
 
-	u, err := url.Parse(Config.DB)
+	u, err := url.Parse(Config.DBConnString)
 	if err != nil {
 		return nil, err
 	}

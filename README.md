@@ -26,11 +26,33 @@ select * from /^demo.*/ where time > now() - 10m limit 100
 List CPU metrics reported from all thingz over last `hour` in `5min` groups
 
 ```
-select max(total) as MaxVal,
-       PERCENTILE(total, 80) as High80,
-       min(total) as MinVal,
-       PERCENTILE(total, 20) as Low20
-from /.cpu$/
+select min(value) as MinVal,
+       PERCENTILE(value, 25) as LowPercentile,
+       mean(value) as MedVal,
+       PERCENTILE(value, 75) as HighPercentile,
+       max(value) as MaxVal
+from /^demo.*/
 where time > now() - 1h
 group by time(5m)
+```
+
+### Speeding things up a bit
+
+Continuous queries let us pre-compute expensive select into another time series in real-time. Here is for example a continuous down-sampling of many series for a single host:
+
+```
+select min(value) as MinVal,
+       PERCENTILE(value, 25) as LowPercentile,
+       mean(value) as MedVal,
+       PERCENTILE(value, 75) as HighPercentile,
+       max(value) as MaxVal
+from /^demo.*/
+group by time(5m)
+into 5m.:series_name
+```
+
+Now we can execute the complex query for each series from that host with an instant response
+
+```
+select * from /^5m.demo.*/ limit 1
 ```

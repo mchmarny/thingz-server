@@ -26,7 +26,7 @@ func main() {
 
 	go func() {
 		router := server.NewRouter()
-		address := fmt.Sprintf(":%d", server.Config.Port)
+		address := fmt.Sprintf(":%d", server.Config.ServerPort)
 		errCh <- http.ListenAndServe(address, router)
 	}()
 
