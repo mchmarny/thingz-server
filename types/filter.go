@@ -7,14 +7,14 @@ import (
 type FilterCommand struct {
 
 	// Dimension of this source
-	Dimension string `json:"dimension"`
+	Metric string `json:"metric"`
 
 	// Filter filter
-	Filter Range `json:"out"`
+	Filter *Range `json:"filter"`
 }
 
 func (c *FilterCommand) String() string {
 	return fmt.Sprintf(
-		"FilterCommand: [ Dimension:%s, Filter:%v ]", c.Dimension, c.Filter,
+		"FilterCommand: [ Metric:%s, Filter:%v ]", c.Metric, c.Filter,
 	)
 }

@@ -2,11 +2,14 @@ package server
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net/url"
 	"strings"
+	"time"
 
 	flux "github.com/influxdb/influxdb/client"
+	"github.com/mchmarny/thingz-server/types"
 )
 
 var db *DataService
@@ -62,10 +65,47 @@ func query(q string, single bool) ([]*flux.Series, error) {
 
 }
 
-func getSources() {
+func getSourceFilters(src string, min int) (*types.ThingResponse, error) {
 
-	log.Println("Querying sources...")
-	query("select * from /.*/ where time > now() - 1d limit 1", false)
+	log.Println("Querying filters for %s", src)
+	q := fmt.Sprintf(
+		"select * from /^%s.*/ where time > now() - %dm limit 1000",
+		src, min)
+
+	result, err := db.Client.Query(q)
+	if err != nil {
+		log.Fatalf("Error on query [%s] - %v", q, err.Error())
+		return nil, err
+	}
+
+	resp := &types.ThingResponse{
+		Timestamp: time.Now(),
+	}
+	resp.Dimensions = make([]*types.Dimension, len(result))
+
+	for i, r := range result {
+
+		log.Printf("Result[%d]%s", i, r.Name)
+
+		d := &types.Dimension{
+			Name: r.Name,
+		}
+
+		for j, s := range r.Columns {
+
+			log.Printf("Column[%d]%s", j, s)
+
+			d.Filters = append(d.Filters, &types.FilterCommand{
+				Metric: s,
+				Filter: &types.Range{},
+			})
+		}
+
+		resp.Dimensions = append(resp.Dimensions, d)
+
+	}
+
+	return resp, nil
 
 }
 

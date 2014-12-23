@@ -12,6 +12,7 @@ func init() {
 
 	flag.IntVar(&Config.Port, "port", 8080, "Server port")
 	flag.StringVar(&Config.DB, "db", "http://thingz:thingz@localhost:8086/thingz", "DB connection")
+	flag.IntVar(&Config.FilterScope, "scope", 60, "Source filter scope in min")
 
 	Config.Version = APP_VERSION
 
@@ -23,7 +24,8 @@ func init() {
 var Config = &ServerConfig{}
 
 type ServerConfig struct {
-	Version string
-	Port    int
-	DB      string
+	Version     string
+	Port        int
+	DB          string
+	FilterScope int
 }
