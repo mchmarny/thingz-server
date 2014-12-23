@@ -26,7 +26,7 @@ func GetThing(w http.ResponseWriter, r *http.Request) {
 	id := vars["id"]
 
 	log.Printf("Thing source: %s", id)
-	resp, err := getSourceFilters(id, Config.FilterScope)
+	resp, err := getSourceFilters(id, Config.Scope)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 

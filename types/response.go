@@ -10,5 +10,5 @@ type ThingResponse struct {
 	Timestamp time.Time `json:"ts"`
 
 	// Dimensions pf metrics
-	Dimensions []*Dimension `json:"dim"`
+	Dimensions []*Dimension `json:"dims"`
 }
