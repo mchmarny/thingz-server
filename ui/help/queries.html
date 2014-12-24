@@ -1,0 +1,37 @@
+
+<div class="modal-content help">
+  <h3>Example Queries</h3>
+  <pre class="highlight sql">
+
+    <span class="k">-- last 10 metrics published for each dimension within last 5hrs</span>
+    select * from /.*/ where time > now() - 5h limit 10
+
+    <span class="k">-- last 10 metrics reported from specific source over last 1h</span>
+    select * from /^demo.*/ where time > now() - 1h limit 10
+
+    <span class="k">-- CPU metrics published over last 1h in down-sampled to 5min </span>
+    select min(value) as MinVal,
+           PERCENTILE(value, 25) as LowPercentile,
+           mean(value) as MedVal,
+           PERCENTILE(value, 75) as HighPercentile,
+           max(value) as MaxVal
+    from /^demo.*/
+    where time > now() - 1h
+    group by time(5m)
+
+  </pre>
+  <p>
+    <pre class="highlight sql">
+
+    <span class="k">Other Aggregate functions:</span>
+    count(), min(), max(), mean(), mode(), median(), distinct(), percentile(),
+    histogram(), derivative(), sum(), stddev(), first(), last().
+
+    </pre>
+  </p>
+
+  <p>
+    <a href="http://influxdb.org/docs/query_language" target="_new">More info</a>.
+  </p>
+
+</div>

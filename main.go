@@ -24,10 +24,17 @@ func main() {
 	doneDone := make(chan bool)
 	errCh := make(chan error, 1)
 
+	// REST
 	go func() {
 		router := server.NewRouter()
-		address := fmt.Sprintf(":%d", server.Config.ServerPort)
+		address := fmt.Sprintf(":%d", server.Config.APIPort)
 		errCh <- http.ListenAndServe(address, router)
+	}()
+
+	// UI
+	go func() {
+		address := fmt.Sprintf(":%d", server.Config.UIPort)
+		errCh <- http.ListenAndServe(address, http.FileServer(http.Dir("./ui")))
 	}()
 
 	go func() {

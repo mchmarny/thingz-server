@@ -14,7 +14,7 @@ echo "   http://${HOST}:8083/"
 # add db
 echo "Creating DB..."
 curl -X POST "http://${HOST}:8086/db?u=root&p=${PSWD}" \
-     -d '{"name": "'"${NAME}"'"}'
+     -d '{"name": "'"${NAME}"'", "retentionPolicy": "1d" }'
 
 # add db user
 echo "Creating DB user..."

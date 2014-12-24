@@ -10,7 +10,8 @@ const (
 
 func init() {
 
-	flag.IntVar(&Config.ServerPort, "port", 8080, "Server port")
+	flag.IntVar(&Config.APIPort, "api-port", 8080, "API Server port")
+	flag.IntVar(&Config.UIPort, "ui-port", 8081, "UI Server port")
 	flag.StringVar(&Config.DBConnString, "db", "http://thingz:thingz@localhost:8086/thingz", "DB connection")
 	flag.IntVar(&Config.DownsampleCCMin, "downsample", 5, "Minutes to downsample data for continuous queries")
 	flag.IntVar(&Config.MetricFilterAbove, "metric-filter-above", 25, "Filter metrics above percentile")
@@ -28,7 +29,8 @@ var Config = &ServerConfig{}
 
 type ServerConfig struct {
 	Version           string
-	ServerPort        int
+	APIPort           int
+	UIPort            int
 	DBConnString      string
 	DownsampleCCMin   int
 	MetricFilterAbove int
