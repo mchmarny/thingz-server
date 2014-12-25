@@ -1,11 +1,11 @@
-package server
+package config
 
 import (
 	"flag"
 )
 
 const (
-	APP_VERSION = "0.0.1"
+	API_VERSION = "v1.0"
 )
 
 func init() {
@@ -18,7 +18,7 @@ func init() {
 	flag.IntVar(&Config.MetricFilterBelow, "metric-filter-below", 75, "Filter metrics below percentile")
 	flag.IntVar(&Config.AgentCheckFreq, "agent-chech-freq", 60, "Agent check-in frequency in min")
 
-	Config.Version = APP_VERSION
+	Config.Version = API_VERSION
 
 	flag.Parse()
 

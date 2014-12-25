@@ -1,32 +1,23 @@
-package server
+package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/mchmarny/thingz-server/data"
 	"github.com/mchmarny/thingz-server/types"
 )
 
-const (
-	VERSION_TEXT = "v0.1.0"
-	WELCOME_TEXT = "Thingz Server: " + VERSION_TEXT
-)
-
-func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, WELCOME_TEXT)
-}
-
-// GetThing lists filters for this source
-func GetThing(w http.ResponseWriter, r *http.Request) {
+// HandleGetFilter lists filters for this source
+func HandleGetFilter(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	id := vars["id"]
 
 	log.Printf("Thing source: %s", id)
-	resp, err := getSourceFilters(id)
+	resp, err := data.GetFilters(id)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 

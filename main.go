@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/mchmarny/thingz-server/config"
 	"github.com/mchmarny/thingz-server/server"
 )
 
@@ -27,13 +28,13 @@ func main() {
 	// REST
 	go func() {
 		router := server.NewRouter()
-		address := fmt.Sprintf(":%d", server.Config.APIPort)
+		address := fmt.Sprintf(":%d", config.Config.APIPort)
 		errCh <- http.ListenAndServe(address, router)
 	}()
 
 	// UI
 	go func() {
-		address := fmt.Sprintf(":%d", server.Config.UIPort)
+		address := fmt.Sprintf(":%d", config.Config.UIPort)
 		errCh <- http.ListenAndServe(address, http.FileServer(http.Dir("./ui")))
 	}()
 
