@@ -24,6 +24,7 @@ _testmain.go
 *.prof
 
 # InfluxDB
+scripts/store
 db/store
 
 # binary
