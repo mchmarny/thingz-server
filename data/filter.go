@@ -12,7 +12,7 @@ import (
 
 func GetFilters(src string) (*types.ThingResponse, error) {
 
-	q := fmt.Sprintf("select low, high from /^%dm.%s.*/ limit 1", config.Config.DownsampleCCMin, src)
+	q := fmt.Sprintf("select low, high from /^%dm-filter.%s.*/ limit 1", config.Config.DownsampleCCMin, src)
 	result, err := db.Query(q)
 	if err != nil {
 		log.Printf("Error on query [%s] - %v", q, err.Error())
@@ -60,7 +60,7 @@ func GetFilters(src string) (*types.ThingResponse, error) {
 func MakeContinuousFilterQuery(src string) error {
 	log.Printf("Creating continuous query for %s", src)
 	q := fmt.Sprintf(
-		"select min(value) as min, PERCENTILE(value, %d) as low, mean(value) as med, PERCENTILE(value, %d) as high, max(value) as max from /^%s.*/ group by time(%dm) into %dm.:series_name",
+		"select min(value) as min, PERCENTILE(value, %d) as low, mean(value) as med, PERCENTILE(value, %d) as high, max(value) as max from /^%s.*/ group by time(%dm) into %dm-filter.:series_name",
 		config.Config.MetricFilterBelow, config.Config.MetricFilterAbove, src, config.Config.DownsampleCCMin, config.Config.DownsampleCCMin)
 	_, err := db.Query(q)
 	return err
