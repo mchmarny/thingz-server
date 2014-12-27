@@ -1,38 +1,32 @@
 package handlers
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/mchmarny/thingz-server/data"
-	"github.com/mchmarny/thingz-server/types"
 )
 
 // HandleGetFilter lists filters for this source
 func HandleGetFilter(w http.ResponseWriter, r *http.Request) {
 
+	SetResponseJSONEncoding(w)
+
 	vars := mux.Vars(r)
-	id := vars["id"]
+	src := vars["src"]
 
-	log.Printf("Thing source: %s", id)
-	resp, err := data.GetFilters(id)
+	if len(src) < 1 {
+		WriteRequestError(w, "src parameter required")
+		return
+	}
 
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	log.Printf("Thing source: %s", src)
+	resp, err := data.GetFilters(src)
 
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		if err := json.NewEncoder(w).Encode(types.JSONError{
-			Code: http.StatusBadRequest,
-			Text: err.Error(),
-		}); err != nil {
-			panic(err)
-		}
+		WriteRequestError(w, err.Error())
 	} else {
-		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			panic(err)
-		}
+		WriteResponse(w, resp)
 	}
 }

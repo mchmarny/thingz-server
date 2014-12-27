@@ -1,6 +1,6 @@
 package types
 
-type ThingResponse struct {
+type FilterResponse struct {
 
 	// Timestamp of when the metric was captured
 	Timestamp int64 `json:"ts"`

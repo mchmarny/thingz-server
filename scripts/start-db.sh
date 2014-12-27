@@ -1,4 +1,6 @@
 #!/bin/bash
 
-influxdb -config=./db.conf
+DIR="$(pwd)"
+
+influxdb -config=$DIR/scripts/db.conf
 
