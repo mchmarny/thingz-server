@@ -1,10 +1,5 @@
 package types
 
-import (
-	"log"
-	"reflect"
-)
-
 type ResourceUtilization struct {
 
 	// Resource of when the metric was captured
@@ -14,8 +9,6 @@ type ResourceUtilization struct {
 	Value interface{} `json:"val"`
 }
 
-var floatType = reflect.TypeOf(float64(0))
-
 type ResourceUtilizationList []ResourceUtilization
 
 func (r ResourceUtilizationList) Len() int {
@@ -23,20 +16,9 @@ func (r ResourceUtilizationList) Len() int {
 }
 
 func (r ResourceUtilizationList) Less(i, j int) bool {
-	return getFloat(r[i].Value) < getFloat(r[j].Value)
+	return r[i].Value.(float64) < r[j].Value.(float64)
 }
 
 func (r ResourceUtilizationList) Swap(i, j int) {
 	r[i], r[j] = r[j], r[i]
-}
-
-func getFloat(unk interface{}) float64 {
-	v := reflect.ValueOf(unk)
-	v = reflect.Indirect(v)
-	if !v.Type().ConvertibleTo(floatType) {
-		log.Panicf("cannot convert %v to float64", v.Type())
-		return 0
-	}
-	fv := v.Convert(floatType)
-	return fv.Float()
 }

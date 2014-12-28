@@ -29,3 +29,7 @@ db/store
 
 # binary
 thingz-server
+
+
+# zip files
+*.zip

@@ -8,6 +8,9 @@ type UtilizationResponse struct {
 	// Period
 	Period *Period `json:"period"`
 
+	// Criteria
+	Criteria string `json:"criteria"`
+
 	// Method
 	Method string `json:"method"`
 

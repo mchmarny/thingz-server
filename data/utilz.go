@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/mchmarny/thingz-server/types"
@@ -23,6 +24,7 @@ func GetUtilizationByMetric(group, metric string, min int) (*types.UtilizationRe
 	resp := &types.UtilizationResponse{
 		Timestamp: time.Now().Unix(),
 		Period:    makePeriod(min),
+		Criteria:  fmt.Sprintf("%s %s utilization over last %d min", metric, group, min),
 		Method:    "median",
 	}
 
@@ -30,8 +32,8 @@ func GetUtilizationByMetric(group, metric string, min int) (*types.UtilizationRe
 
 	for _, r := range result {
 		list = append(list, types.ResourceUtilization{
-			Resource: r.Name,
-			Value:    r.Points[0][2],
+			Resource: strings.Split(r.Name, ".")[1],
+			Value:    r.Points[0][1],
 		})
 	}
 
