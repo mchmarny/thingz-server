@@ -17,6 +17,7 @@ func init() {
 	flag.IntVar(&Config.MetricFilterAbove, "metric-filter-above", 25, "Filter metrics above percentile")
 	flag.IntVar(&Config.MetricFilterBelow, "metric-filter-below", 75, "Filter metrics below percentile")
 	flag.IntVar(&Config.AgentCheckFreq, "agent-chech-freq", 60, "Agent check-in frequency in min")
+	flag.StringVar(&Config.Proxy, "proxy", "", "HTTP Proxy")
 
 	Config.Version = API_VERSION
 
@@ -36,4 +37,5 @@ type ServerConfig struct {
 	MetricFilterAbove int
 	MetricFilterBelow int
 	AgentCheckFreq    int
+	Proxy             string
 }

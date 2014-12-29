@@ -2,6 +2,7 @@ package data
 
 import (
 	"log"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -27,6 +28,15 @@ func init() {
 	p, _ := u.User.Password()
 	c.Password = p
 	c.Database = strings.Replace(u.Path, "/", "", -1)
+
+	if len(config.Config.Proxy) > 1 {
+		proxyUrl, err := url.Parse(config.Config.Proxy)
+		if err != nil {
+			log.Fatalf("Error while parsing HTTP proxy: %v", err)
+			panic(err)
+		}
+		c.HttpClient = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyUrl)}}
+	}
 
 	client, err := flux.NewClient(c)
 	if err != nil {
