@@ -5,25 +5,42 @@ Thingz understood
 
 ## Queries
 
-### All Thingz
+![image](./images/thingz-query.png)
 
-List thingz reported over last hour
-
-```
-select * from /.*/ where time > now() - 1h limit 1
-```
-
-### All Thingz by source
-
-List thingz reported from `demo` source over last `10m` with a limit of `100` records
+Things series follow simple tag/value naming convention
 
 ```
-select * from /^demo.*/ where time > now() - 10m limit 100
+src.*.dim.*.met.*
 ```
 
-### All Thingz by metric
+* `src` - is the source of the event (ip-172-31-11-155)
+* `dim` - is the dimension of this series event (CPU)
+* `met` - is the event metric (idle)
 
-List CPU metrics reported from all thingz over last `hour` in `5min` groups
+> Note, the series names are index and support regular expression 
+
+Knowing this convention, you can structure your series query across either multiple sources and metrics or on a specific metric in a single source
+
+
+### List available series
+
+Let's start by something simple, list thingz series.
+
+```
+select * from /.*/ limit 1
+```
+
+### List specific metric in all series 
+
+For something more challenging, query mean memory reported from all sources over last `1h` grouped by time
+
+```
+select mean(value) from /^src.*.dim.mem.met.actual-used/ where time > now() -1h group by time(1m)
+```
+
+### List all metrics for specific dimension on all sources
+
+List all CPU metrics reported over last `hour` in `5min` groups
 
 ```
 select min(value) as MinVal,
@@ -31,7 +48,7 @@ select min(value) as MinVal,
        mean(value) as MedVal,
        PERCENTILE(value, 75) as HighPercentile,
        max(value) as MaxVal
-from /^demo.*/
+from /^src.*.dim.cpu.met.*/
 where time > now() - 1h
 group by time(5m)
 ```
@@ -46,7 +63,7 @@ select min(value) as MinVal,
        mean(value) as MedVal,
        PERCENTILE(value, 75) as HighPercentile,
        max(value) as MaxVal
-from /^demo.*/
+from /^src.*.dim.cpu.met.*/
 group by time(5m)
 into 5m.:series_name
 ```
@@ -56,3 +73,9 @@ Now we can execute the complex query for each series from that host with an inst
 ```
 select * from /^5m.demo.*/ limit 1
 ```
+
+## Charts
+
+Once the server is installed you can build your own charts using [Grafana](http://grafana.org/)
+
+![image](./images/thingz-chart.png)
