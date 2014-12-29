@@ -4,74 +4,7 @@ Thingz understood
 
 This server works in tandem with the [thingz-agent](https://github.com/mchmarny/thingz-agent) to provide demonstration of both the dynamic modeling to support actuation as well as forensic query and visualization.
 
-## API
 
-### Dynamic Modeling 
-
-```
-GetFilter [GET] - /api/v1.0/filters/{src}
-```
-
-Provides dynamic criteria information to aid `things-agent` pre-filtering at the edge.
-
-```
-{
-    "ts": 1419878794,
-    "nextCheck": 1419882394,
-    "totalDimensions": 23,
-    "hasMore": false,
-    "dimensions": [
-        {
-            "dimension": "cpu",
-            "metric": "idle",
-            "filter": {
-            "below": 73975,
-            "above": 73965
-        }
-        },
-        {
-            "dimension": "cpu",
-            "metric": "nice",
-            "filter": {
-            "below": 7562,
-            "above": 7561
-        }
-        },...
-```
-
-### Actuation Guidance 
-
-```
-GetSourcesByUtilization [GET] - /api/v1.0/util/{dimension}/{metric}/{min}
-```
-
-Provides guidance for placement based on specific dimension and metric over indicated period in minutes
-
-```
-{
-    "ts": 1419878920,
-    "period": {
-        "from": 1419878920,
-        "to": 1419882520
-    },
-    "criteria": "total cpu utilization over last 60 min",
-    "method": "median",
-    "resources": [
-        {
-            "src": "ip-172-31-11-156",
-            "val": 16126108
-        },
-        {
-            "src": "ip-172-31-11-155",
-            "val": 16126335
-        },
-        {
-            "src": "ip-172-31-3-206",
-            "val": 16426783
-        }
-    ]
-}
-```
 
 ## Queries
 
@@ -152,6 +85,75 @@ Querying Thingz is also possible through REST API. Simply send a GET to /db/thin
 ```
 curl -G 'http://localhost:8086/db/mydb/series?u=agent&p=YOUR_SECRET' --data-urlencode \
      "q=select max(value) from src.ip-172-31-11-155.dim.mem.met.actual-used limit 1"
+```
+
+## API
+
+### Dynamic Modeling 
+
+```
+GetFilter [GET] - /api/v1.0/filters/{src}
+```
+
+Provides dynamic criteria information to aid `things-agent` pre-filtering at the edge.
+
+```
+{
+    "ts": 1419878794,
+    "nextCheck": 1419882394,
+    "totalDimensions": 23,
+    "hasMore": false,
+    "dimensions": [
+        {
+            "dimension": "cpu",
+            "metric": "idle",
+            "filter": {
+            "below": 73975,
+            "above": 73965
+        }
+        },
+        {
+            "dimension": "cpu",
+            "metric": "nice",
+            "filter": {
+            "below": 7562,
+            "above": 7561
+        }
+        },...
+```
+
+### Actuation Guidance 
+
+```
+GetSourcesByUtilization [GET] - /api/v1.0/util/{dimension}/{metric}/{min}
+```
+
+Provides guidance for placement based on specific dimension and metric over indicated period in minutes
+
+```
+{
+    "ts": 1419878920,
+    "period": {
+        "from": 1419878920,
+        "to": 1419882520
+    },
+    "criteria": "total cpu utilization over last 60 min",
+    "method": "median",
+    "resources": [
+        {
+            "src": "ip-172-31-11-156",
+            "val": 16126108
+        },
+        {
+            "src": "ip-172-31-11-155",
+            "val": 16126335
+        },
+        {
+            "src": "ip-172-31-3-206",
+            "val": 16426783
+        }
+    ]
+}
 ```
 
 ## Charts
