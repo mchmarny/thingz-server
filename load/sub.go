@@ -1,4 +1,4 @@
-package data
+package load
 
 import (
 	"log"
@@ -13,11 +13,8 @@ const (
 	KAFKA_CONSUMER_GROUP = "thingzgroup"
 )
 
-// LoadFromKafka
-func LoadFromKafka() {
-
-	topic := config.Config.KafkaTopic
-	brokers := config.Config.KafkaBrokers
+// subscribe
+func subscribe(topic, brokers string, out chan<- []byte) {
 
 	if len(topic) < 1 || len(brokers) < 1 {
 		panic("Invalid arguments. Both topic and brokers required")
@@ -71,14 +68,17 @@ func LoadFromKafka() {
 				if e.Err != nil {
 					log.Printf("Event error: %d - %v", i, e.Err.Error())
 				} else {
-					// TODO: send to DB load channel
-					log.Printf("T:%s K:%s O:%d P:%d V:%s",
-						e.Topic,
-						string(e.Key),
-						e.Offset,
-						e.Partition,
-						string(e.Value),
-					)
+					// TODO: remove
+					if config.Config.Verbose {
+						log.Printf("T:%s K:%s O:%d P:%d V:%s",
+							e.Topic,
+							string(e.Key),
+							e.Offset,
+							e.Partition,
+							string(e.Value),
+						)
+					}
+					out <- e.Value
 				} // error
 			} // select
 		} // for each consumer

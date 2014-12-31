@@ -4,8 +4,6 @@ Thingz understood
 
 This server works in tandem with the [thingz-agent](https://github.com/mchmarny/thingz-agent) to provide demonstration of both the dynamic modeling to support actuation as well as forensic query and visualization.
 
-
-
 ## Queries
 
 ![image](./images/thingz-query.png)

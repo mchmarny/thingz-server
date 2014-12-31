@@ -8,7 +8,7 @@ import (
 	"os/signal"
 
 	"github.com/mchmarny/thingz-server/config"
-	"github.com/mchmarny/thingz-server/data"
+	"github.com/mchmarny/thingz-server/load"
 	"github.com/mchmarny/thingz-server/server"
 )
 
@@ -40,8 +40,8 @@ func main() {
 	}()
 
 	// If configured, load Messages from Kafka
-	if config.Config.LoadFromKafka {
-		go data.LoadFromKafka()
+	if config.Config.Load {
+		go load.LoadFromKafka()
 	}
 
 	go func() {
