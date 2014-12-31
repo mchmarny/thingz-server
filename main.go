@@ -8,6 +8,7 @@ import (
 	"os/signal"
 
 	"github.com/mchmarny/thingz-server/config"
+	"github.com/mchmarny/thingz-server/data"
 	"github.com/mchmarny/thingz-server/server"
 )
 
@@ -37,6 +38,11 @@ func main() {
 		address := fmt.Sprintf(":%d", config.Config.UIPort)
 		errCh <- http.ListenAndServe(address, http.FileServer(http.Dir("./ui")))
 	}()
+
+	// If configured, load Messages from Kafka
+	if config.Config.LoadFromKafka {
+		go data.LoadFromKafka()
+	}
 
 	go func() {
 
