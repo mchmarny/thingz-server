@@ -1,11 +1,11 @@
 package load
 
 import (
-	"fmt"
 	"log"
 
 	flux "github.com/influxdb/influxdb/client"
-	types "github.com/mchmarny/thingz-commons"
+	"github.com/mchmarny/thingz-commons"
+	"github.com/mchmarny/thingz-commons/types"
 )
 
 // convert translates the JSON data into a metric collection
@@ -20,11 +20,7 @@ func convert(in <-chan []byte, out chan<- *flux.Series) {
 			} else {
 				for _, v := range m.Metrics {
 					out <- &flux.Series{
-						Name: fmt.Sprintf("src.%s.dim.%s.met.%s",
-							m.Source,
-							m.Dimension,
-							v.Metric,
-						),
+						Name:    commons.FormatMetricName(m.Source, m.Dimension, v.Metric),
 						Columns: []string{"time", "value"},
 						Points:  [][]interface{}{{v.Timestamp.Unix(), v.Value}},
 					} // series
