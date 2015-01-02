@@ -5,7 +5,6 @@ import (
 
 	flux "github.com/influxdb/influxdb/client"
 	"github.com/mchmarny/thingz-commons"
-	"github.com/mchmarny/thingz-commons/types"
 )
 
 // convert translates the JSON data into a metric collection
@@ -14,17 +13,15 @@ func convert(in <-chan []byte, out chan<- *flux.Series) {
 	for {
 		select {
 		case data := <-in:
-			m, err := types.ParseMetricCollection(data)
+			m, err := commons.ParseMetric(data)
 			if err != nil {
 				log.Printf("Error parsing Metric Collection: %v", err)
 			} else {
-				for _, v := range m.Metrics {
-					out <- &flux.Series{
-						Name:    commons.FormatMetricName(m.Source, m.Dimension, v.Metric),
-						Columns: []string{"time", "value"},
-						Points:  [][]interface{}{{v.Timestamp.Unix(), v.Value}},
-					} // series
-				} // for
+				out <- &flux.Series{
+					Name:    m.FormatFQName(),
+					Columns: []string{"time", "value"},
+					Points:  [][]interface{}{{m.Timestamp.Unix(), m.Value}},
+				} // series
 			} // err
 		} // select
 	} // for

@@ -34,3 +34,7 @@ thingz-server
 
 # zip files
 *.zip
+
+# sublime
+*.sublime-project
+*.sublime-workspace
