@@ -4,7 +4,21 @@
 
 This server works in tandem with the [thingz-agent](https://github.com/mchmarny/thingz-agent) to provide demonstration of both the dynamic modeling to support actuation as well as forensic query and visualization.
 
-## Queries
+## Topology
+
+### Simple Deployment
+
+For smaller deployments (<200 thingz) the agents can report directly to the `thingz-server` over either UDP or REST
+
+![image](./images/thingz-simple.png)
+
+### Scaled Deployment 
+
+For larger deployments, or for situations where an external scheduler will be involved, the `thingz-agent` should be configured to report to a Message Bus (Apache Kafka) from where `thingz-server` will pick up metrics.
+
+![image](./images/thingz-scaled.png)
+
+## UI - Dynamic Queries
 
 ![image](./images/thingz-query.png)
 
@@ -56,34 +70,39 @@ group by time(5m)
 
 ### Speeding things up a bit
 
-Continuous queries let us pre-compute expensive select into another time series in real-time. Here is for example a continuous down-sampling of many series for a single host:
+More complex queries on demand will eventually get slower. You can assure consistent performance by creating continuous queries which will pre-compute expensive queries into another time series which will be kept up to date in real-time. 
+
+Here is for example a continuous down-sampling of many series for a single host:
 
 ```
-select min(value) as MinVal,
-       PERCENTILE(value, 25) as LowPercentile,
-       mean(value) as MedVal,
-       PERCENTILE(value, 75) as HighPercentile,
-       max(value) as MaxVal
-from /^src.*.dim.cpu.met.*/
-group by time(5m)
-into 5m.:series_name
+select last(value),
+       median(value)
+from /^src.*.dim.mem.met.actual-used/
+group by time(1m)
+into 1m.:series_name
 ```
 
 Now we can execute the complex query for each series from that host with an instant response
 
 ```
-select * from /^5m.demo.*/ limit 1
+select * from src.ip-172-31-21-3.dim.mem.met.actual-used 
+where time > now() - 1h
 ```
 
 ### Querying Through the HTTP API
 
-Querying Thingz is also possible through REST API. Simply send a GET to /db/thingz/series?q=<query>&u=<user>&p=<pass>. Here is a simple CURL example 
-
+Querying Thingz is also possible through REST API. Simply send a GET to /db/thingz/series?q=<query>&u=<user>&p=<pass>. Here is a simple CURL example:
 
 ```
 curl -G 'http://localhost:8086/db/mydb/series?u=agent&p=YOUR_SECRET' --data-urlencode \
-     "q=select max(value) from src.ip-172-31-11-155.dim.mem.met.actual-used limit 1"
+     "q=select count(value) from src.ip-172-31-11-155.dim.mem.met.actual-used"
 ```
+
+## UI - Charting
+
+Once the server is installed you can build your own charts using [Grafana](http://grafana.org/). A sample dashboard configuration file is located in `/scripts/grafana-dashboard.json`
+
+![image](./images/thingz-chart.png)
 
 ## API
 
@@ -154,8 +173,4 @@ Provides guidance for placement based on specific dimension and metric over indi
 }
 ```
 
-## Charts
 
-Once the server is installed you can build your own charts using [Grafana](http://grafana.org/)
-
-![image](./images/thingz-chart.png)
