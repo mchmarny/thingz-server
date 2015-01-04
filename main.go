@@ -30,12 +30,14 @@ func main() {
 	go func() {
 		router := server.NewRouter()
 		address := fmt.Sprintf(":%d", config.Config.APIPort)
+		log.Printf("Starting API Server - http://localhost%s", address)
 		errCh <- http.ListenAndServe(address, router)
 	}()
 
 	// UI
 	go func() {
 		address := fmt.Sprintf(":%d", config.Config.UIPort)
+		log.Printf("Starting UI Server - http://localhost%s", address)
 		errCh <- http.ListenAndServe(address, http.FileServer(http.Dir("./ui")))
 	}()
 

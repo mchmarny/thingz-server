@@ -1,0 +1,29 @@
+# =====
+# Go
+# =====
+
+# Get Kafka client
+go get -u github.com/jdamick/kafka
+
+# Build client and tools
+cd $GOPATH/src/github.com/jdamick/kafka
+make kafka
+make tools
+
+
+# =====
+# Kafka
+# =====
+cd $KAFKA_HOME
+
+# Start Zookeeper
+zookeeper-server-start.sh config/zookeeper.properties
+
+# Start Kafka
+kafka-server-start.sh config/server.properties
+
+# Create a topic
+kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic thingz
+
+# Start consumer and check for thingz
+kafka-console-consumer.sh --zookeeper localhost:2181 --topic thingz --from-beginning

@@ -3,19 +3,21 @@
   <h3>Example Queries</h3>
   <pre class="highlight sql">
 
-    <span class="k">-- last 10 metrics published for each dimension within last 5hrs</span>
-    select * from /.*/ where time > now() - 5h limit 10
+    <span class="k">-- Metrics published for each dimension within last 1 min.</span>
+    select * from /.*/ where time > now() - 1m
 
-    <span class="k">-- last 10 metrics reported from specific source over last 1h</span>
-    select * from /^demo.*/ where time > now() - 1h limit 10
+    <span class="k">-- Median value reported from specific source over last 1 hr. down-sampled 5 min.</span>
+    select median(value) from /^src.ip-172-31-21-4.*/ where time > now() - 1h group by time(5m)
 
-    <span class="k">-- CPU metrics published over last 1h in down-sampled to 5min </span>
-    select min(value) as MinVal,
-           PERCENTILE(value, 25) as LowPercentile,
-           mean(value) as MedVal,
-           PERCENTILE(value, 75) as HighPercentile,
-           max(value) as MaxVal
-    from /^demo.*/
+    <span class="k">-- CPU metrics published from all sources over last 1h down-sampled 5min </span>
+    select count(value),
+           min(value),
+           PERCENTILE(value, 25) as p25,
+           mean(value),
+           PERCENTILE(value, 75) as p75,
+           max(value),
+           last(value)
+    from /^src.*.dim.cpu.*/
     where time > now() - 1h
     group by time(5m)
 

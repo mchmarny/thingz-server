@@ -68,15 +68,16 @@
               "function": "mean",
               "column": "value",
               "rawQuery": true,
-              "query": "select max(value) from \"src.ip-172-31-11-155.dim.mem.met.actual-used\" where time > now() - 1h group by time(1m) ",
-              "alias": "Max"
+              "query": "select max(value) from \"src.ip-172-31-21-3.dim.mem.met.actual-used\" where time > now() - 1h group by time(1m) ",
+              "alias": "Max",
+              "interval": ""
             },
             {
               "target": "",
               "function": "mean",
               "column": "value",
               "rawQuery": true,
-              "query": "select median(value) from \"src.ip-172-31-11-155.dim.mem.met.actual-used\" where time > now() - 1h group by time(1m) ",
+              "query": "select median(value) from \"src.ip-172-31-21-3.dim.mem.met.actual-used\" where time > now() - 1h group by time(1m) ",
               "alias": "Median",
               "interval": ""
             }
@@ -285,7 +286,7 @@
               "function": "mean",
               "column": "value",
               "rawQuery": true,
-              "query": "select last(value) from \"src.ip-172-31-11-155.dim.cpu.met.sys\" where time > now() - 1h group by time(1m) ",
+              "query": "select last(value) from \"src.ip-172-31-21-4.dim.cpu.met.sys\" where time > now() - 1h group by time(1m) ",
               "interval": "",
               "alias": "Last"
             },
@@ -294,7 +295,7 @@
               "function": "mean",
               "column": "value",
               "rawQuery": true,
-              "query": "select stddev(value) from \"src.ip-172-31-11-155.dim.cpu.met.sys\" where time > now() - 1h group by time(1m) ",
+              "query": "select stddev(value) from \"src.ip-172-31-21-4.dim.cpu.met.sys\" where time > now() - 1h group by time(1m) ",
               "alias": "StdDev",
               "interval": ""
             }

@@ -10,5 +10,5 @@ if [ -d "$TMP" ]; then
     rm -r $TMP
 fi
 
-influxdb -config=./scripts/db.conf
+influxdb -config=./scripts/db-local.conf
 
