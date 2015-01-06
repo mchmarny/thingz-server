@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Thingz.io by mchmarny</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Thingz.io</h1>
+        <p>Thingz understood</p>
+
+        <p class="view"><a href="https://github.com/mchmarny/thingz-server">View the Project on GitHub <small>mchmarny/thingz-server</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/mchmarny/thingz-server/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/mchmarny/thingz-server/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/mchmarny/thingz-server">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="vision-of-smarter-thingz-project-in-adaptive-metric-flow-modeling" class="anchor" href="#vision-of-smarter-thingz-project-in-adaptive-metric-flow-modeling" aria-hidden="true"><span class="octicon octicon-link"></span></a>Vision of smarter thingz; project in adaptive metric flow modeling</h1>
+
+<p>Over the holidays, as many of us do, I embarked on a little extra-curriculum development effort I called <a href="thingz.io">thingz.io</a>. I was driven by the pattern I'd observed in Data Center (DC) monitoring products; although that pattern also exists in many of today's Internet of Things (IoT) solutions. </p>
+
+<p>I refer to this pattern as <code>Forensic Understanding</code>. In simplest terms it implies that in order to understand (derive any value) out of monitoring data we must first persist that data; load it into a priory-defined model, probably in some kind of database. This approach is often driven by the use of traditional BI tools to "understand" these metric in a context of an entire volume.</p>
+
+<p>There are two fundamental weaknesses in this approach though:</p>
+
+<ol>
+<li>It requires design-time model definition (understanding of the questions one will be asking) and designing the underlying persistence to optimize for that usage model </li>
+<li>and, it often requires interactive analysis. As the number of "things" we monitor grows the volume of data that needs to be analyzed increases</li>
+</ol>
+
+<p><img src="http://media.tumblr.com/f9c4aebe50d8ed97cb99fd2ea31bbf37/tumblr_inline_nhs2gbIk8W1rd2h1o.png" alt=""></p>
+
+<blockquote>
+<p>Addressing these weaknesses requires a fundamental shift from reports and forensic queries to more adaptive models and dynamic rules.</p>
+</blockquote>
+
+<p>As a result of the after-the-fact nature of this approach, the value of the analyzed data is often realized too late to make any significant impact.</p>
+
+<h2>
+<a id="thingz-understood" class="anchor" href="#thingz-understood" aria-hidden="true"><span class="octicon octicon-link"></span></a>Thingz Understood</h2>
+
+<p>To experiment with an idea I created a couple of GitHub projects: <a href="https://github.com/mchmarny/thingz-agent">thingz-agent</a> where thingz are measured and <a href="https://github.com/mchmarny/thingz-server">thingz-server</a> where thingz are understood.</p>
+
+<p><img src="https://raw.githubusercontent.com/mchmarny/thingz-server/master/images/thingz-scaled.png" alt=""></p>
+
+<h4>
+<a id="thingz-agent" class="anchor" href="#thingz-agent" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="https://github.com/mchmarny/thingz-agent">thingz-agent</a>
+</h4>
+
+<p>Generates streams of system metrics from variety of devices (cpu, memory, swap, load, processes, etc.) based on configurable strategies: report CPU every second but system load every 10 and so forth. To accommodate different deployment scales, <code>thingz-agent</code> also supports multiple publishers:</p>
+
+<ul>
+<li>
+<strong>kafka</strong> - queues messages in Kafka</li>
+<li>
+<strong>influxdb</strong> - publishes to REST or UDP endpoint </li>
+<li>
+<strong>stdout</strong> - output to console</li>
+</ul>
+
+<h4>
+<a id="thingz-server" class="anchor" href="#thingz-server" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="https://github.com/mchmarny/thingz-server">thingz-server</a>
+</h4>
+
+<p>Processes the inbound streams and builds dynamic models which identifies portent data (signal) and filter it from the noise. The <code>thingz-server</code> can actually close the loop and provide this guidance to the agents to pre-filter that data right at the edge. </p>
+
+<p>Yes, the <code>thingz-server</code> also supports forensic queries. And, because it is generic in nature, it doesn't require priory model definition which in turn enables data discovery with fair amount of analytical capabilities while supporting down-sampling to any arbitrary level (e.g. deviation, mean and percentile for all records from specific sources over last hour down-sampled to one minute). </p>
+
+<h2>
+<a id="actuation-guidance" class="anchor" href="#actuation-guidance" aria-hidden="true"><span class="octicon octicon-link"></span></a>Actuation Guidance</h2>
+
+<p>To support schedulers and other type of actuators, the <code>thingz-server</code> also exposes a flexible REST API designed to identify availability across all monitored resources. Here is an example of a query for least utilized resources based on standard deviation in memory over last 10 min.</p>
+
+<p><code>[GET] - /api/v1.0/util/mem/used/10</code></p>
+
+<p>All in all this was an interesting exercise in understanding the challenges related to dynamic models... even if it got me the occasional look from my wife for "working" over holidays ;)</p>
+
+<h2>
+<a id="related-links" class="anchor" href="#related-links" aria-hidden="true"><span class="octicon octicon-link"></span></a>Related Links:</h2>
+
+<ul>
+<li><a href="http://rd.springer.com/chapter/10.1007%2F11538356_47">Fuzzy Logic Based Feedback Scheduler for Embedded Control Systems</a></li>
+<li>
+<a href="https://github.com/influxdb/influxdb/">InfluxDB</a> - Scalable datastore for metrics, events, and real-time analytics</li>
+<li>
+<a href="https://github.com/cloudfoundry/gosigar">Go sigar</a> - Pure Go implementation of the sigar API.</li>
+</ul>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/mchmarny">mchmarny</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
